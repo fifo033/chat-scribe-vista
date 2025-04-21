@@ -89,49 +89,49 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       : 'human';
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
       <div>
-        <Label htmlFor="status">Status</Label>
+        <Label htmlFor="status">Статус</Label>
         <div className="relative">
           <select
             id="status"
             value={statusValue}
             onChange={handleStatusChange}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-zinc-900 dark:border-zinc-700"
           >
-            <option value="all">All Statuses</option>
-            <option value="waiting">Waiting</option>
-            <option value="active">Active</option>
+            <option value="all">Все статусы</option>
+            <option value="waiting">Ожидание</option>
+            <option value="active">Активные</option>
           </select>
         </div>
       </div>
       
       <div>
-        <Label htmlFor="agent">Agent Type</Label>
+        <Label htmlFor="agent">Тип агента</Label>
         <div className="relative">
           <select
             id="agent"
             value={agentValue}
             onChange={handleAgentChange}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-zinc-900 dark:border-zinc-700"
           >
-            <option value="all">All Agents</option>
-            <option value="ai">AI</option>
-            <option value="human">Human</option>
+            <option value="all">Все агенты</option>
+            <option value="ai">ИИ</option>
+            <option value="human">Человек</option>
           </select>
         </div>
       </div>
       
       <div>
-        <Label htmlFor="dateRange">Date Range</Label>
+        <Label htmlFor="dateRange">Период</Label>
         <div className="flex items-center gap-2">
           <DatePicker
             selectsRange={true}
             startDate={startDate}
             endDate={endDate}
             onChange={handleDateChange}
-            className="border border-input rounded-md p-2 w-full"
-            placeholderText="Select date range"
+            className="border border-input rounded-md p-2 w-full dark:bg-zinc-900 dark:border-zinc-700"
+            placeholderText="Выберите период"
           />
         </div>
       </div>
@@ -142,14 +142,15 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             type="text" 
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search chats..."
+            placeholder="Поиск чатов..."
             onKeyPress={e => e.key === 'Enter' && handleSearch()}
+            className="dark:bg-zinc-900 dark:border-zinc-700"
           />
-          <Button onClick={handleSearch}>Search</Button>
+          <Button onClick={handleSearch}>Поиск</Button>
         </div>
         
-        <Button variant="outline" onClick={handleReset}>
-          Reset Filters
+        <Button variant="outline" onClick={handleReset} className="dark:border-zinc-700">
+          Сбросить фильтры
         </Button>
       </div>
     </div>

@@ -49,13 +49,12 @@ const ChatList: React.FC<ChatListProps> = ({
       header: 'ID',
       cell: ({ row }) => {
         const uuid = row.getValue('uuid') as string;
-        const waiting = row.original.waiting;
-        const lastMessage = "Последнее сообщение..."; // Replace with actual last message when available
+        const lastMessage = row.original.last_message || "Нет сообщений";
         
         return (
           <div className="space-y-1">
-            <div className="font-mono text-sm">{uuid.substring(0, 8)}...</div>
-            <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+            <div className="font-mono text-sm dark:text-zinc-300">{uuid.substring(0, 8)}...</div>
+            <div className="text-xs text-muted-foreground truncate max-w-[200px] dark:text-zinc-400">
               {lastMessage}
             </div>
           </div>
@@ -79,7 +78,7 @@ const ChatList: React.FC<ChatListProps> = ({
       header: 'Время',
       cell: ({ row }) => {
         const timestamp = row.getValue('last_message_at') as string;
-        return <span className="text-sm">{formatChatListDate(timestamp)}</span>;
+        return <span className="text-sm dark:text-zinc-300">{formatChatListDate(timestamp)}</span>;
       }
     }
   ];
@@ -96,13 +95,13 @@ const ChatList: React.FC<ChatListProps> = ({
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border dark:border-zinc-800">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="dark:bg-zinc-800/50">
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="cursor-pointer" onClick={header.column.getToggleSortingHandler()}>
+                <TableHead key={header.id} className="cursor-pointer dark:text-zinc-400" onClick={header.column.getToggleSortingHandler()}>
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext()
@@ -121,7 +120,7 @@ const ChatList: React.FC<ChatListProps> = ({
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={columns.length} className="h-24 text-center dark:text-zinc-400">
                 Загрузка чатов...
               </TableCell>
             </TableRow>
@@ -130,11 +129,13 @@ const ChatList: React.FC<ChatListProps> = ({
               <TableRow 
                 key={row.id} 
                 onClick={() => onChatSelect(row.original.id)}
-                className={`cursor-pointer ${selectedChatId === row.original.id ? 'bg-accent' : ''}`}
+                className={`cursor-pointer dark:hover:bg-zinc-800/50 ${
+                  selectedChatId === row.original.id ? 'dark:bg-zinc-800 bg-accent' : ''
+                }`}
                 data-state={selectedChatId === row.original.id ? 'selected' : undefined}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="dark:text-zinc-300">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -142,7 +143,7 @@ const ChatList: React.FC<ChatListProps> = ({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={columns.length} className="h-24 text-center dark:text-zinc-400">
                 Чаты не найдены.
               </TableCell>
             </TableRow>

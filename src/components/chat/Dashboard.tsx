@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChatFilter, ChatListItem, ChatDetailResponse } from '@/types/chat';
 import { 
@@ -12,11 +13,10 @@ import ChatList from './ChatList';
 import ChatDetailView from './ChatDetailView';
 import FilterPanel from './FilterPanel';
 import Pagination from './Pagination';
-import { Circle } from 'lucide-react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Send } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 const Dashboard: React.FC = () => {
   const queryClient = useQueryClient();
@@ -169,7 +169,7 @@ const Dashboard: React.FC = () => {
   const totalPages = Math.ceil((chatListData?.total || 0) / pageSize);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 dark:bg-zinc-900">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Панель управления чатами</h1>
       </div>
@@ -180,10 +180,10 @@ const Dashboard: React.FC = () => {
         onSearch={handleSearch}
       />
       
-      <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg border">
+      <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg border dark:border-zinc-800">
         {/* Chat List Panel */}
         <ResizablePanel defaultSize={25} minSize={20}>
-          <div className="h-full p-4 bg-background">
+          <div className="h-full p-4 bg-background dark:bg-zinc-900">
             <h2 className="text-xl font-semibold mb-4">Чаты</h2>
             <ChatList
               chats={chatListData?.chats || []}
@@ -205,27 +205,33 @@ const Dashboard: React.FC = () => {
         
         {/* Chat Detail Panel */}
         <ResizablePanel defaultSize={75}>
-          <div className="h-full p-4 bg-background">
+          <div className="h-full p-4 bg-background dark:bg-zinc-900 flex flex-col">
             <h2 className="text-xl font-semibold mb-4">Детали чата</h2>
             {selectedChatId ? (
               chatDetailData ? (
                 <div className="flex flex-col h-full">
-                  <ChatDetailView
-                    chatInfo={chatDetailData.chatInfo}
-                    messages={chatDetailData.messages}
-                    isLoading={isLoadingChatDetail}
-                    onTakeOverChat={handleTakeOverChat}
-                    onReturnToAI={handleReturnToAI}
-                    onExportChat={handleExportChat}
-                  />
-                  <div className="mt-4 flex gap-2">
-                    <Input
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Написать сообщение..."
-                      className="flex-1"
+                  <div className="flex-grow overflow-auto">
+                    <ChatDetailView
+                      chatInfo={chatDetailData.chatInfo}
+                      messages={chatDetailData.messages}
+                      isLoading={isLoadingChatDetail}
+                      onTakeOverChat={handleTakeOverChat}
+                      onReturnToAI={handleReturnToAI}
+                      onExportChat={handleExportChat}
                     />
-                    <Button>Отправить</Button>
+                  </div>
+                  <div className="mt-4 p-4 bg-white dark:bg-zinc-800 rounded-lg border dark:border-zinc-700 shadow-lg">
+                    <div className="flex gap-2">
+                      <Textarea
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Написать сообщение..."
+                        className="flex-1 min-h-[60px] resize-none dark:bg-zinc-900 dark:text-white"
+                      />
+                      <Button className="self-end bg-primary hover:bg-primary/90 dark:bg-zinc-700 dark:hover:bg-zinc-600">
+                        <Send className="h-5 w-5" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ) : isLoadingChatDetail ? (
