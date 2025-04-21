@@ -12,6 +12,7 @@ import { ChatListItem } from '@/types/chat';
 import { formatChatListDate } from '@/utils/dateUtils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Circle } from 'lucide-react';
 
 interface ChatListProps {
   chats: ChatListItem[];
@@ -32,49 +33,54 @@ const ChatList: React.FC<ChatListProps> = ({
 
   const columns: ColumnDef<ChatListItem>[] = [
     {
-      accessorKey: 'uuid',
-      header: 'UUID',
+      accessorKey: 'status',
+      header: 'Статус',
       cell: ({ row }) => {
-        const uuid = row.getValue('uuid') as string;
-        return <span className="font-mono">{uuid.substring(0, 8)}...</span>;
+        const waiting = row.original.waiting;
+        return (
+          <Circle
+            className={`${waiting ? 'text-destructive' : 'text-green-500'} w-3 h-3 fill-current`}
+          />
+        );
       }
     },
     {
-      accessorKey: 'waiting',
-      header: 'Status',
+      accessorKey: 'uuid',
+      header: 'ID',
       cell: ({ row }) => {
-        const waiting = row.getValue('waiting') as boolean;
+        const uuid = row.getValue('uuid') as string;
+        const waiting = row.original.waiting;
+        const lastMessage = "Последнее сообщение..."; // Replace with actual last message when available
+        
         return (
-          <Badge variant={waiting ? "destructive" : "success"}>
-            {waiting ? 'Waiting' : 'Active'}
-          </Badge>
+          <div className="space-y-1">
+            <div className="font-mono text-sm">{uuid.substring(0, 8)}...</div>
+            <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+              {lastMessage}
+            </div>
+          </div>
         );
       }
     },
     {
       accessorKey: 'ai',
-      header: 'Agent',
+      header: 'Агент',
       cell: ({ row }) => {
         const isAi = row.getValue('ai') as boolean;
         return (
           <Badge variant={isAi ? "outline" : "secondary"}>
-            {isAi ? 'AI' : 'Human'}
+            {isAi ? 'ИИ' : 'Человек'}
           </Badge>
         );
       }
     },
     {
       accessorKey: 'last_message_at',
-      header: 'Last Message',
+      header: 'Время',
       cell: ({ row }) => {
         const timestamp = row.getValue('last_message_at') as string;
-        return formatChatListDate(timestamp);
+        return <span className="text-sm">{formatChatListDate(timestamp)}</span>;
       }
-    },
-    {
-      accessorKey: 'message_count',
-      header: 'Messages',
-      cell: ({ row }) => row.getValue('message_count')
     }
   ];
 
@@ -116,7 +122,7 @@ const ChatList: React.FC<ChatListProps> = ({
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                Loading chats...
+                Загрузка чатов...
               </TableCell>
             </TableRow>
           ) : table.getRowModel().rows.length > 0 ? (
@@ -137,7 +143,7 @@ const ChatList: React.FC<ChatListProps> = ({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No chats found.
+                Чаты не найдены.
               </TableCell>
             </TableRow>
           )}

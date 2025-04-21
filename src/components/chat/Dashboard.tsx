@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChatFilter, ChatListItem, ChatDetailResponse } from '@/types/chat';
@@ -9,11 +8,14 @@ import {
   exportChatAsJson, 
   exportChatAsText 
 } from '@/api/chatService';
-import useChatWebSocket from '@/hooks/useChatWebSocket';
 import ChatList from './ChatList';
 import ChatDetailView from './ChatDetailView';
 import FilterPanel from './FilterPanel';
 import Pagination from './Pagination';
+import { Circle } from 'lucide-react';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 const Dashboard: React.FC = () => {
@@ -21,6 +23,7 @@ const Dashboard: React.FC = () => {
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [newMessage, setNewMessage] = useState('');
   const [filters, setFilters] = useState<ChatFilter>({
     waiting: null,
     ai: null,
@@ -36,21 +39,17 @@ const Dashboard: React.FC = () => {
   });
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('disconnected');
   
-  // Set up WebSocket connection
-  const { isConnected, reconnect } = useChatWebSocket({
-    onNewMessage: (data) => {
-      // If the message is for the currently selected chat, show a notification
-      if (selectedChatId === data.chatId) {
-        console.log('New message received:', data.message);
+  // Auto-refresh every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      queryClient.invalidateQueries({ queryKey: ['chats'] });
+      if (selectedChatId) {
+        queryClient.invalidateQueries({ queryKey: ['chat', selectedChatId] });
       }
-    },
-    onChatStatusChanged: (data) => {
-      console.log('Chat status changed:', data);
-    },
-    onConnectionChange: (status) => {
-      setConnectionStatus(status);
-    }
-  });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [queryClient, selectedChatId]);
 
   // Fetch chat list
   const {
@@ -172,20 +171,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Customer Chat Dashboard</h1>
-        <div className="flex items-center gap-2">
-          <Badge variant={connectionStatus === 'connected' ? 'success' : 'destructive'}>
-            {connectionStatus === 'connected' ? 'WebSocket Connected' : 'WebSocket Disconnected'}
-          </Badge>
-          {connectionStatus === 'disconnected' && (
-            <button 
-              onClick={reconnect}
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Reconnect
-            </button>
-          )}
-        </div>
+        <h1 className="text-2xl font-bold">Панель управления чатами</h1>
       </div>
       
       <FilterPanel
@@ -194,55 +180,71 @@ const Dashboard: React.FC = () => {
         onSearch={handleSearch}
       />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg border">
         {/* Chat List Panel */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Chats</h2>
-          
-          <ChatList
-            chats={chatListData?.chats || []}
-            isLoading={isLoadingChatList}
-            onChatSelect={handleChatSelect}
-            selectedChatId={selectedChatId || undefined}
-          />
-          
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-          />
-        </div>
+        <ResizablePanel defaultSize={25} minSize={20}>
+          <div className="h-full p-4 bg-background">
+            <h2 className="text-xl font-semibold mb-4">Чаты</h2>
+            <ChatList
+              chats={chatListData?.chats || []}
+              isLoading={isLoadingChatList}
+              onChatSelect={handleChatSelect}
+              selectedChatId={selectedChatId || undefined}
+            />
+            <div className="mt-4">
+              <Pagination
+                currentPage={page}
+                totalPages={Math.ceil((chatListData?.total || 0) / pageSize)}
+                onPageChange={setPage}
+              />
+            </div>
+          </div>
+        </ResizablePanel>
+        
+        <ResizableHandle withHandle />
         
         {/* Chat Detail Panel */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Chat Detail</h2>
-          
-          {selectedChatId ? (
-            chatDetailData ? (
-              <ChatDetailView
-                chatInfo={chatDetailData.chatInfo}
-                messages={chatDetailData.messages}
-                isLoading={isLoadingChatDetail}
-                onTakeOverChat={handleTakeOverChat}
-                onReturnToAI={handleReturnToAI}
-                onExportChat={handleExportChat}
-              />
-            ) : isLoadingChatDetail ? (
-              <div className="bg-white rounded-lg shadow p-8 flex items-center justify-center">
-                <p>Loading chat details...</p>
-              </div>
+        <ResizablePanel defaultSize={75}>
+          <div className="h-full p-4 bg-background">
+            <h2 className="text-xl font-semibold mb-4">Детали чата</h2>
+            {selectedChatId ? (
+              chatDetailData ? (
+                <div className="flex flex-col h-full">
+                  <ChatDetailView
+                    chatInfo={chatDetailData.chatInfo}
+                    messages={chatDetailData.messages}
+                    isLoading={isLoadingChatDetail}
+                    onTakeOverChat={handleTakeOverChat}
+                    onReturnToAI={handleReturnToAI}
+                    onExportChat={handleExportChat}
+                  />
+                  <div className="mt-4 flex gap-2">
+                    <Input
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Написать сообщение..."
+                      className="flex-1"
+                    />
+                    <Button>Отправить</Button>
+                  </div>
+                </div>
+              ) : isLoadingChatDetail ? (
+                <div className="flex items-center justify-center h-full">
+                  <p>Загрузка деталей чата...</p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <p>Не удалось загрузить детали чата.</p>
+                </div>
+              )
             ) : (
-              <div className="bg-white rounded-lg shadow p-8 flex items-center justify-center">
-                <p>Failed to load chat details.</p>
+              <div className="flex items-center justify-center h-full">
+                <p>Выберите чат для просмотра деталей.</p>
               </div>
-            )
-          ) : (
-            <div className="bg-white rounded-lg shadow p-8 flex items-center justify-center">
-              <p>Select a chat to view details.</p>
-            </div>
-          )}
-        </div>
-      </div>
+            )}
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
