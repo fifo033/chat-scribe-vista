@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChatFilter, ChatListItem, ChatDetailResponse } from '@/types/chat';
@@ -22,7 +21,7 @@ const Dashboard: React.FC = () => {
   const queryClient = useQueryClient();
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(5);
   const [newMessage, setNewMessage] = useState('');
   const [filters, setFilters] = useState<ChatFilter>({
     waiting: null,
@@ -39,7 +38,6 @@ const Dashboard: React.FC = () => {
   });
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('disconnected');
   
-  // Auto-refresh every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       queryClient.invalidateQueries({ queryKey: ['chats'] });
@@ -51,7 +49,6 @@ const Dashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, [queryClient, selectedChatId]);
 
-  // Fetch chat list
   const {
     data: chatListData,
     isLoading: isLoadingChatList,
@@ -68,7 +65,6 @@ const Dashboard: React.FC = () => {
       ),
   });
 
-  // Fetch selected chat details
   const {
     data: chatDetailData,
     isLoading: isLoadingChatDetail,
@@ -82,60 +78,50 @@ const Dashboard: React.FC = () => {
     enabled: !!selectedChatId,
   });
 
-  // Handle chat selection
   const handleChatSelect = (chatId: number) => {
     setSelectedChatId(chatId);
   };
 
-  // Handle filters change
   const handleFilterChange = (newFilters: ChatFilter) => {
     setFilters(newFilters);
-    setPage(1); // Reset to first page
+    setPage(1);
   };
 
-  // Handle search
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setPage(1); // Reset to first page
+    setPage(1);
   };
 
-  // Handle take over chat
   const handleTakeOverChat = async () => {
     if (!selectedChatId) return;
     
     try {
       await updateChat(selectedChatId, { waiting: true, ai: false });
       
-      // Invalidate queries to refetch data
       queryClient.invalidateQueries({ queryKey: ['chat', selectedChatId] });
       queryClient.invalidateQueries({ queryKey: ['chats'] });
       
-      // Refetch the current chat
       refetchChatDetail();
     } catch (error) {
       console.error('Failed to take over chat:', error);
     }
   };
 
-  // Handle return to AI
   const handleReturnToAI = async () => {
     if (!selectedChatId) return;
     
     try {
       await updateChat(selectedChatId, { waiting: false, ai: true });
       
-      // Invalidate queries to refetch data
       queryClient.invalidateQueries({ queryKey: ['chat', selectedChatId] });
       queryClient.invalidateQueries({ queryKey: ['chats'] });
       
-      // Refetch the current chat
       refetchChatDetail();
     } catch (error) {
       console.error('Failed to return chat to AI:', error);
     }
   };
 
-  // Handle export chat
   const handleExportChat = async (format: 'json' | 'text') => {
     if (!selectedChatId) return;
     
@@ -151,7 +137,6 @@ const Dashboard: React.FC = () => {
         filename = `chat_${selectedChatId}_export.txt`;
       }
       
-      // Create download link
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -165,13 +150,12 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Calculate total pages
   const totalPages = Math.ceil((chatListData?.total || 0) / pageSize);
 
   return (
-    <div className="container mx-auto p-4 dark:bg-zinc-900">
+    <div className="container mx-auto p-4 dark:bg-zinc-900 min-h-[calc(100vh-2rem)]">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Панель управления чатами</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Панель управления чатами</h1>
       </div>
       
       <FilterPanel
@@ -180,11 +164,10 @@ const Dashboard: React.FC = () => {
         onSearch={handleSearch}
       />
       
-      <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg border dark:border-zinc-800">
-        {/* Chat List Panel */}
-        <ResizablePanel defaultSize={25} minSize={20}>
+      <ResizablePanelGroup direction="horizontal" className="min-h-[600px] rounded-lg border dark:border-zinc-800">
+        <ResizablePanel defaultSize={20} minSize={15}>
           <div className="h-full p-4 bg-background dark:bg-zinc-900">
-            <h2 className="text-xl font-semibold mb-4">Чаты</h2>
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">Чаты</h2>
             <ChatList
               chats={chatListData?.chats || []}
               isLoading={isLoadingChatList}
@@ -194,7 +177,7 @@ const Dashboard: React.FC = () => {
             <div className="mt-4">
               <Pagination
                 currentPage={page}
-                totalPages={Math.ceil((chatListData?.total || 0) / pageSize)}
+                totalPages={totalPages}
                 onPageChange={setPage}
               />
             </div>
@@ -203,8 +186,7 @@ const Dashboard: React.FC = () => {
         
         <ResizableHandle withHandle />
         
-        {/* Chat Detail Panel */}
-        <ResizablePanel defaultSize={75}>
+        <ResizablePanel defaultSize={80}>
           <div className="h-full p-4 bg-background dark:bg-zinc-900 flex flex-col">
             <h2 className="text-xl font-semibold mb-4">Детали чата</h2>
             {selectedChatId ? (
