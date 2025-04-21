@@ -165,7 +165,7 @@ const Dashboard: React.FC = () => {
       />
       
       <ResizablePanelGroup direction="horizontal" className="min-h-[600px] rounded-lg border dark:border-zinc-800">
-        <ResizablePanel defaultSize={20} minSize={15}>
+        <ResizablePanel defaultSize={15} minSize={15}>
           <div className="h-full p-4 bg-background dark:bg-zinc-900">
             <h2 className="text-xl font-semibold mb-4 dark:text-white">Чаты</h2>
             <ChatList
@@ -186,7 +186,7 @@ const Dashboard: React.FC = () => {
         
         <ResizableHandle withHandle />
         
-        <ResizablePanel defaultSize={80}>
+        <ResizablePanel defaultSize={85}>
           <div className="h-full p-4 bg-background dark:bg-zinc-900 flex flex-col">
             <h2 className="text-xl font-semibold mb-4">Детали чата</h2>
             {selectedChatId ? (

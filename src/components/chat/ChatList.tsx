@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   ColumnDef, 
@@ -37,10 +36,19 @@ const ChatList: React.FC<ChatListProps> = ({
       header: 'Статус',
       cell: ({ row }) => {
         const waiting = row.original.waiting;
+        const isDone = !waiting && !row.original.ai; // Consider a chat done when it's not waiting and not handled by AI
         return (
-          <Circle
-            className={`${waiting ? 'text-destructive' : 'text-green-500'} w-3 h-3 fill-current`}
-          />
+          <div className="flex items-center">
+            <Circle
+              className={`${
+                waiting 
+                  ? 'text-destructive' 
+                  : isDone 
+                    ? 'text-gray-400' // Grey color for done/closed chats
+                    : 'text-green-500'
+              } w-3 h-3 fill-current`}
+            />
+          </div>
         );
       }
     },
@@ -49,8 +57,6 @@ const ChatList: React.FC<ChatListProps> = ({
       header: 'ID',
       cell: ({ row }) => {
         const uuid = row.getValue('uuid') as string;
-        // Instead of using non-existent 'last_message' property, we'll display a placeholder
-        // or we could use message_count to indicate if there are messages
         const messageCount = row.original.message_count;
         const messagePreview = messageCount > 0 ? `Сообщений: ${messageCount}` : "Нет сообщений";
         

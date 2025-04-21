@@ -1,4 +1,3 @@
-
 export interface ChatListItem {
   id: number;
   uuid: string;
@@ -6,6 +5,7 @@ export interface ChatListItem {
   ai: boolean;
   last_message_at: string;
   message_count: number;
+  done?: boolean; // Optional property to explicitly mark chats as done
 }
 
 export interface ChatListResponse {
