@@ -1,7 +1,7 @@
 import { ChatDetailResponse, ChatFilter, ChatListResponse } from "@/types/chat";
 
 // Base URL for API calls
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'http://82.202.143.118:3001/api';
 
 // Polling interval in milliseconds
 const POLLING_INTERVAL = 5000;
