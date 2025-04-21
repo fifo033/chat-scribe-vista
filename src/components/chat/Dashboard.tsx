@@ -165,15 +165,21 @@ const Dashboard: React.FC = () => {
       />
       
       <ResizablePanelGroup direction="horizontal" className="min-h-[600px] rounded-lg border dark:border-zinc-800">
-        <ResizablePanel defaultSize={25} minSize={20}>
+        <ResizablePanel defaultSize={45} minSize={35}>
           <div className="h-full p-4 bg-background dark:bg-zinc-900">
             <h2 className="text-xl font-semibold mb-4 dark:text-white">Чаты</h2>
-            <ChatList
-              chats={chatListData?.chats || []}
-              isLoading={isLoadingChatList}
-              onChatSelect={handleChatSelect}
-              selectedChatId={selectedChatId || undefined}
-            />
+            {isLoadingChatList ? (
+              <div className="flex items-center justify-center h-24">
+                <p>Загрузка чатов...</p>
+              </div>
+            ) : (
+              <ChatList
+                chats={chatListData?.chats || []}
+                isLoading={isLoadingChatList}
+                onChatSelect={handleChatSelect}
+                selectedChatId={selectedChatId || undefined}
+              />
+            )}
             <div className="mt-4">
               <Pagination
                 currentPage={page}
@@ -186,9 +192,9 @@ const Dashboard: React.FC = () => {
         
         <ResizableHandle withHandle />
         
-        <ResizablePanel defaultSize={75}>
+        <ResizablePanel defaultSize={55}>
           <div className="h-full p-4 bg-background dark:bg-zinc-900 flex flex-col">
-            <h2 className="text-xl font-semibold mb-4">Детали чата</h2>
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">Детали чата</h2>
             {selectedChatId ? (
               chatDetailData ? (
                 <div className="flex flex-col h-full">
@@ -210,24 +216,23 @@ const Dashboard: React.FC = () => {
                         placeholder="Написать сообщение..."
                         className="flex-1 min-h-[60px] resize-none dark:bg-zinc-900 dark:text-white"
                       />
-                      <Button className="self-end bg-primary hover:bg-primary/90 dark:bg-zinc-700 dark:hover:bg-zinc-600">
+                      <Button 
+                        className="self-end bg-primary hover:bg-primary/90 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                        aria-label="Отправить сообщение"
+                      >
                         <Send className="h-5 w-5" />
                       </Button>
                     </div>
                   </div>
                 </div>
-              ) : isLoadingChatDetail ? (
-                <div className="flex items-center justify-center h-full">
-                  <p>Загрузка деталей чата...</p>
-                </div>
               ) : (
                 <div className="flex items-center justify-center h-full">
-                  <p>Не удалось загрузить детали чата.</p>
+                  <p>Загрузка деталей чата...</p>
                 </div>
               )
             ) : (
               <div className="flex items-center justify-center h-full">
-                <p>Выберите чат для просмотра деталей.</p>
+                <p>Выберите чат для просмотра деталей</p>
               </div>
             )}
           </div>
