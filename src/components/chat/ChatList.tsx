@@ -35,17 +35,14 @@ const ChatList: React.FC<ChatListProps> = ({
       accessorKey: 'status',
       header: 'Статус',
       cell: ({ row }) => {
-        const waiting = row.original.waiting;
-        const isDone = !waiting && !row.original.ai; // Consider a chat done when it's not waiting and not handled by AI
+        const isUnread = row.original.waiting;
         return (
           <div className="flex items-center">
             <Circle
               className={`${
-                waiting 
-                  ? 'text-destructive' 
-                  : isDone 
-                    ? 'text-gray-400' // Grey color for done/closed chats
-                    : 'text-green-500'
+                isUnread 
+                  ? 'text-green-500' // Green for unread chats (waiting = true)
+                  : 'text-gray-400' // Grey for read chats (waiting = false)
               } w-3 h-3 fill-current`}
             />
           </div>

@@ -6,6 +6,7 @@ export interface ChatListItem {
   last_message_at: string;
   message_count: number;
   done?: boolean; // Optional property to explicitly mark chats as done
+  read: boolean; // New property to track read status
 }
 
 export interface ChatListResponse {

@@ -6,7 +6,8 @@ import {
   fetchChatById, 
   updateChat, 
   exportChatAsJson, 
-  exportChatAsText 
+  exportChatAsText,
+  sendMessage
 } from '@/api/chatService';
 import ChatList from './ChatList';
 import ChatDetailView from './ChatDetailView';
@@ -78,8 +79,17 @@ const Dashboard: React.FC = () => {
     enabled: !!selectedChatId,
   });
 
-  const handleChatSelect = (chatId: number) => {
+  const handleChatSelect = async (chatId: number) => {
     setSelectedChatId(chatId);
+    
+    // Mark chat as read by setting waiting to false
+    try {
+      await updateChat(chatId, { waiting: false });
+      queryClient.invalidateQueries({ queryKey: ['chats'] });
+      queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
+    } catch (error) {
+      console.error('Failed to mark chat as read:', error);
+    }
   };
 
   const handleFilterChange = (newFilters: ChatFilter) => {
@@ -150,6 +160,18 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleSendMessage = async () => {
+    if (!selectedChatId || !newMessage.trim()) return;
+    
+    try {
+      await sendMessage(selectedChatId, newMessage, 'answer', false);
+      setNewMessage('');
+      queryClient.invalidateQueries({ queryKey: ['chat', selectedChatId] });
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
+  };
+
   const totalPages = Math.ceil((chatListData?.total || 0) / pageSize);
 
   return (
@@ -215,10 +237,18 @@ const Dashboard: React.FC = () => {
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Написать сообщение..."
                         className="flex-1 min-h-[60px] resize-none dark:bg-zinc-900 dark:text-white"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                          }
+                        }}
                       />
                       <Button 
                         className="self-end bg-primary hover:bg-primary/90 dark:bg-zinc-700 dark:hover:bg-zinc-600"
                         aria-label="Отправить сообщение"
+                        onClick={handleSendMessage}
+                        disabled={!newMessage.trim()}
                       >
                         <Send className="h-5 w-5" />
                       </Button>
