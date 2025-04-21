@@ -49,13 +49,16 @@ const ChatList: React.FC<ChatListProps> = ({
       header: 'ID',
       cell: ({ row }) => {
         const uuid = row.getValue('uuid') as string;
-        const lastMessage = row.original.last_message || "Нет сообщений";
+        // Instead of using non-existent 'last_message' property, we'll display a placeholder
+        // or we could use message_count to indicate if there are messages
+        const messageCount = row.original.message_count;
+        const messagePreview = messageCount > 0 ? `Сообщений: ${messageCount}` : "Нет сообщений";
         
         return (
           <div className="space-y-1">
             <div className="font-mono text-sm dark:text-zinc-300">{uuid.substring(0, 8)}...</div>
             <div className="text-xs text-muted-foreground truncate max-w-[200px] dark:text-zinc-400">
-              {lastMessage}
+              {messagePreview}
             </div>
           </div>
         );
