@@ -1,4 +1,3 @@
-
 import { format, parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 
@@ -6,18 +5,36 @@ import { formatInTimeZone } from 'date-fns-tz';
 const MOSCOW_TIMEZONE = 'Europe/Moscow';
 
 // Format a date to Moscow time with hours and minutes
-export const formatMoscowTime = (dateString: string): string => {
-  return formatInTimeZone(parseISO(dateString), MOSCOW_TIMEZONE, 'HH:mm');
+export const formatMoscowTime = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'N/A';
+  try {
+    return formatInTimeZone(parseISO(dateString), MOSCOW_TIMEZONE, 'HH:mm');
+  } catch (error) {
+    console.error('Error formatting Moscow time:', error);
+    return 'N/A';
+  }
 };
 
 // Format a date to Moscow time with full date
-export const formatMoscowFullDate = (dateString: string): string => {
-  return formatInTimeZone(parseISO(dateString), MOSCOW_TIMEZONE, 'yyyy-MM-dd HH:mm:ss');
+export const formatMoscowFullDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'N/A';
+  try {
+    return formatInTimeZone(parseISO(dateString), MOSCOW_TIMEZONE, 'yyyy-MM-dd HH:mm:ss');
+  } catch (error) {
+    console.error('Error formatting Moscow full date:', error);
+    return 'N/A';
+  }
 };
 
 // Format a date for display in the chat list
-export const formatChatListDate = (dateString: string): string => {
-  return formatInTimeZone(parseISO(dateString), MOSCOW_TIMEZONE, 'yyyy-MM-dd HH:mm');
+export const formatChatListDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'N/A';
+  try {
+    return formatInTimeZone(parseISO(dateString), MOSCOW_TIMEZONE, 'yyyy-MM-dd HH:mm');
+  } catch (error) {
+    console.error('Error formatting chat list date:', error);
+    return 'N/A';
+  }
 };
 
 // Format a date range for filters

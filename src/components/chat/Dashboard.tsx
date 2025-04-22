@@ -62,7 +62,8 @@ const Dashboard: React.FC = () => {
         pageSize, 
         filters, 
         sortConfig.field, 
-        sortConfig.order
+        sortConfig.order,
+        searchQuery
       ),
   });
 
@@ -80,16 +81,27 @@ const Dashboard: React.FC = () => {
   });
 
   const handleChatSelect = async (chatId: number) => {
+    if (selectedChatId === chatId) return;
+    
     setSelectedChatId(chatId);
     
-    // Mark chat as read by setting waiting to false
     try {
       await updateChat(chatId, { waiting: false });
-      queryClient.invalidateQueries({ queryKey: ['chats'] });
-      queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
+      
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['chats'] }),
+        queryClient.invalidateQueries({ queryKey: ['chat', chatId] })
+      ]);
+      
+      await refetchChatDetail();
     } catch (error) {
       console.error('Failed to mark chat as read:', error);
+      setSelectedChatId(null);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
   };
 
   const handleFilterChange = (newFilters: ChatFilter) => {
@@ -100,6 +112,7 @@ const Dashboard: React.FC = () => {
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     setPage(1);
+    refetchChatList();
   };
 
   const handleTakeOverChat = async () => {
@@ -172,8 +185,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const totalPages = Math.ceil((chatListData?.total || 0) / pageSize);
-
   return (
     <div className="container mx-auto p-4 dark:bg-zinc-900 min-h-[calc(100vh-2rem)]">
       <div className="flex justify-between items-center mb-6">
@@ -205,8 +216,8 @@ const Dashboard: React.FC = () => {
             <div className="mt-4">
               <Pagination
                 currentPage={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
+                totalPages={Math.ceil((chatListData?.total || 0) / pageSize)}
+                onPageChange={handlePageChange}
               />
             </div>
           </div>

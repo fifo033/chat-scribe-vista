@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -15,10 +14,11 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
   // Calculate the range of pages to show
   const getPageRange = () => {
-    const range: (number | string)[] = [];
+    const range: number[] = [];
+    const maxPagesToShow = 5;
     
-    if (totalPages <= 7) {
-      // Show all pages if total pages are less than or equal to 7
+    if (totalPages <= maxPagesToShow) {
+      // Show all pages if total pages are less than or equal to maxPagesToShow
       for (let i = 1; i <= totalPages; i++) {
         range.push(i);
       }
@@ -28,20 +28,22 @@ const Pagination: React.FC<PaginationProps> = ({
       
       if (currentPage <= 3) {
         // If current page is near the beginning
-        range.push(2, 3, 4, 5, '...', totalPages);
+        for (let i = 2; i <= maxPagesToShow - 1; i++) {
+          range.push(i);
+        }
+        range.push(totalPages);
       } else if (currentPage >= totalPages - 2) {
         // If current page is near the end
-        range.push('...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+        range.push(totalPages - 3);
+        range.push(totalPages - 2);
+        range.push(totalPages - 1);
+        range.push(totalPages);
       } else {
         // If current page is in the middle
-        range.push(
-          '...',
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          '...',
-          totalPages
-        );
+        range.push(currentPage - 1);
+        range.push(currentPage);
+        range.push(currentPage + 1);
+        range.push(totalPages);
       }
     }
     
@@ -58,19 +60,15 @@ const Pagination: React.FC<PaginationProps> = ({
         Previous
       </Button>
       
-      {getPageRange().map((page, i) => (
-        <React.Fragment key={i}>
-          {typeof page === 'number' ? (
-            <Button
-              variant={currentPage === page ? "default" : "outline"}
-              onClick={() => onPageChange(page)}
-            >
-              {page}
-            </Button>
-          ) : (
-            <span className="mx-1">...</span>
-          )}
-        </React.Fragment>
+      {getPageRange().map((page) => (
+        <Button
+          key={page}
+          variant={currentPage === page ? "default" : "outline"}
+          onClick={() => onPageChange(page)}
+          disabled={currentPage === page}
+        >
+          {page}
+        </Button>
       ))}
       
       <Button

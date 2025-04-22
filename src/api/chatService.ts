@@ -1,7 +1,7 @@
 import { ChatDetailResponse, ChatFilter, ChatListResponse } from "@/types/chat";
 
 // Base URL for API calls
-const API_BASE_URL = 'http://82.202.143.118:3001/api';
+const API_BASE_URL = 'http://localhost:3001/api';
 
 // Polling interval in milliseconds
 const POLLING_INTERVAL = 5000;
@@ -113,7 +113,8 @@ export async function fetchChats(
   pageSize: number, 
   filters: ChatFilter = {},
   sortField: string = 'last_message_at',
-  sortOrder: 'asc' | 'desc' = 'desc'
+  sortOrder: 'asc' | 'desc' = 'desc',
+  searchQuery: string = ''
 ): Promise<ChatListResponse> {
   try {
     const response = await fetch(`${API_BASE_URL}/chats`);
@@ -124,6 +125,14 @@ export async function fetchChats(
     
     // Apply filters on the client side since our simple backend doesn't support filtering
     let filteredChats = [...chats];
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filteredChats = filteredChats.filter(chat => 
+        chat.uuid.toLowerCase().includes(query)
+      );
+    }
     
     if (filters.waiting !== undefined && filters.waiting !== null) {
       filteredChats = filteredChats.filter(chat => chat.waiting === filters.waiting);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   ColumnDef, 
   flexRender, 
@@ -29,6 +29,14 @@ const ChatList: React.FC<ChatListProps> = ({
   const [sorting, setSorting] = useState<SortingState>([
     { id: 'last_message_at', desc: true }
   ]);
+
+  // Ensure chats is always an array and handle null/undefined cases
+  const safeChats = Array.isArray(chats) ? chats : [];
+  
+  // Prevent unnecessary re-renders
+  const handleRowClick = useCallback((chatId: number) => {
+    onChatSelect(chatId);
+  }, [onChatSelect]);
 
   const columns: ColumnDef<ChatListItem>[] = [
     {
@@ -90,7 +98,7 @@ const ChatList: React.FC<ChatListProps> = ({
   ];
 
   const table = useReactTable({
-    data: chats,
+    data: safeChats,
     columns,
     state: {
       sorting,
@@ -130,11 +138,11 @@ const ChatList: React.FC<ChatListProps> = ({
                 Загрузка чатов...
               </TableCell>
             </TableRow>
-          ) : table.getRowModel().rows.length > 0 ? (
+          ) : safeChats.length > 0 ? (
             table.getRowModel().rows.map((row) => (
               <TableRow 
                 key={row.id} 
-                onClick={() => onChatSelect(row.original.id)}
+                onClick={() => handleRowClick(row.original.id)}
                 className={`cursor-pointer dark:hover:bg-zinc-800/50 ${
                   selectedChatId === row.original.id ? 'dark:bg-zinc-800 bg-accent' : ''
                 }`}
