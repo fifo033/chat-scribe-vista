@@ -51,13 +51,13 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-center space-x-2 mt-4">
+    <div className="pagination">
       <Button
         variant="outline"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
-        Previous
+        Назад
       </Button>
       
       {getPageRange().map((page) => (
@@ -76,7 +76,7 @@ const Pagination: React.FC<PaginationProps> = ({
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
       >
-        Next
+        Далее
       </Button>
     </div>
   );

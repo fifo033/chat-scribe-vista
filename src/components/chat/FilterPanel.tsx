@@ -89,15 +89,25 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       : 'human';
 
   return (
-    <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div style={{ 
+      backgroundColor: 'var(--card)', 
+      padding: 'var(--spacing-4)', 
+      borderRadius: 'var(--radius-lg)', 
+      boxShadow: 'var(--shadow)', 
+      marginBottom: 'var(--spacing-6)',
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+      gap: 'var(--spacing-4)'
+    }}>
       <div>
         <Label htmlFor="status">Статус</Label>
-        <div className="relative">
+        <div style={{ position: 'relative' }}>
           <select
             id="status"
             value={statusValue}
             onChange={handleStatusChange}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-zinc-900 dark:border-zinc-700"
+            className="input"
+            style={{ width: '100%' }}
           >
             <option value="all">Все статусы</option>
             <option value="waiting">Ожидание</option>
@@ -108,12 +118,13 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       
       <div>
         <Label htmlFor="agent">Тип агента</Label>
-        <div className="relative">
+        <div style={{ position: 'relative' }}>
           <select
             id="agent"
             value={agentValue}
             onChange={handleAgentChange}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-zinc-900 dark:border-zinc-700"
+            className="input"
+            style={{ width: '100%' }}
           >
             <option value="all">Все агенты</option>
             <option value="ai">ИИ</option>
@@ -130,7 +141,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             startDate={startDate}
             endDate={endDate}
             onChange={handleDateChange}
-            className="border border-input rounded-md p-2 w-full dark:bg-zinc-900 dark:border-zinc-700"
+            className="input"
             placeholderText="Выберите период"
           />
         </div>
@@ -144,12 +155,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Поиск чатов..."
             onKeyPress={e => e.key === 'Enter' && handleSearch()}
-            className="dark:bg-zinc-900 dark:border-zinc-700"
           />
           <Button onClick={handleSearch}>Поиск</Button>
         </div>
         
-        <Button variant="outline" onClick={handleReset} className="dark:border-zinc-700">
+        <Button variant="outline" onClick={handleReset}>
           Сбросить фильтры
         </Button>
       </div>

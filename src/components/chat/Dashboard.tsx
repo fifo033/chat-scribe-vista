@@ -186,9 +186,9 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 dark:bg-zinc-900 min-h-[calc(100vh-2rem)]">
+    <div className="container mx-auto p-4" style={{ backgroundColor: 'var(--background)', minHeight: 'calc(100vh - 2rem)' }}>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold dark:text-white">Панель управления чатами</h1>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Панель управления чатами</h1>
       </div>
       
       <FilterPanel
@@ -197,12 +197,12 @@ const Dashboard: React.FC = () => {
         onSearch={handleSearch}
       />
       
-      <ResizablePanelGroup direction="horizontal" className="min-h-[600px] rounded-lg border dark:border-zinc-800">
-        <ResizablePanel defaultSize={45} minSize={35}>
-          <div className="h-full p-4 bg-background dark:bg-zinc-900">
-            <h2 className="text-xl font-semibold mb-4 dark:text-white">Чаты</h2>
+      <div className="resizable-panel-group" style={{ minHeight: '600px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
+        <div className="resizable-panel" style={{ width: '45%', minWidth: '35%' }}>
+          <div className="h-full p-4" style={{ backgroundColor: 'var(--background)' }}>
+            <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--foreground)' }}>Чаты</h2>
             {isLoadingChatList ? (
-              <div className="flex items-center justify-center h-24">
+              <div className="flex items-center justify-center" style={{ height: '6rem' }}>
                 <p>Загрузка чатов...</p>
               </div>
             ) : (
@@ -221,13 +221,13 @@ const Dashboard: React.FC = () => {
               />
             </div>
           </div>
-        </ResizablePanel>
+        </div>
         
-        <ResizableHandle withHandle />
+        <div className="resizable-handle"></div>
         
-        <ResizablePanel defaultSize={55}>
-          <div className="h-full p-4 bg-background dark:bg-zinc-900 flex flex-col">
-            <h2 className="text-xl font-semibold mb-4 dark:text-white">Детали чата</h2>
+        <div className="resizable-panel" style={{ width: '55%' }}>
+          <div className="h-full p-4 flex flex-col" style={{ backgroundColor: 'var(--background)' }}>
+            <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--foreground)' }}>Детали чата</h2>
             {selectedChatId ? (
               chatDetailData ? (
                 <div className="flex flex-col h-full">
@@ -241,13 +241,14 @@ const Dashboard: React.FC = () => {
                       onExportChat={handleExportChat}
                     />
                   </div>
-                  <div className="mt-4 p-4 bg-white dark:bg-zinc-800 rounded-lg border dark:border-zinc-700 shadow-lg">
+                  <div className="mt-4 p-4 rounded-lg border shadow-lg" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
                     <div className="flex gap-2">
                       <Textarea
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Написать сообщение..."
-                        className="flex-1 min-h-[60px] resize-none dark:bg-zinc-900 dark:text-white"
+                        className="textarea flex-1"
+                        style={{ minHeight: '60px', resize: 'none' }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
@@ -256,12 +257,13 @@ const Dashboard: React.FC = () => {
                         }}
                       />
                       <Button 
-                        className="self-end bg-primary hover:bg-primary/90 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                        className="button button-primary"
+                        style={{ alignSelf: 'flex-end' }}
                         aria-label="Отправить сообщение"
                         onClick={handleSendMessage}
                         disabled={!newMessage.trim()}
                       >
-                        <Send className="h-5 w-5" />
+                        <Send style={{ height: '1.25rem', width: '1.25rem' }} />
                       </Button>
                     </div>
                   </div>
@@ -277,8 +279,8 @@ const Dashboard: React.FC = () => {
               </div>
             )}
           </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </div>
+      </div>
     </div>
   );
 };

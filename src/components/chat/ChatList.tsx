@@ -47,11 +47,12 @@ const ChatList: React.FC<ChatListProps> = ({
         return (
           <div className="flex items-center">
             <Circle
-              className={`${
-                isUnread 
-                  ? 'text-green-500' // Green for unread chats (waiting = true)
-                  : 'text-gray-400' // Grey for read chats (waiting = false)
-              } w-3 h-3 fill-current`}
+              style={{
+                color: isUnread ? 'var(--color-green-500)' : 'var(--color-gray-400)',
+                width: '0.75rem',
+                height: '0.75rem',
+                fill: 'currentColor'
+              }}
             />
           </div>
         );
@@ -66,9 +67,18 @@ const ChatList: React.FC<ChatListProps> = ({
         const messagePreview = messageCount > 0 ? `Сообщений: ${messageCount}` : "Нет сообщений";
         
         return (
-          <div className="space-y-1">
-            <div className="font-mono text-sm dark:text-zinc-300">{uuid.substring(0, 8)}...</div>
-            <div className="text-xs text-muted-foreground truncate max-w-[200px] dark:text-zinc-400">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-1)' }}>
+            <div style={{ fontFamily: 'monospace', fontSize: 'var(--font-size-sm)', color: 'var(--foreground)' }}>
+              {uuid.substring(0, 8)}...
+            </div>
+            <div style={{ 
+              fontSize: 'var(--font-size-xs)', 
+              color: 'var(--muted-foreground)', 
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: '200px'
+            }}>
               {messagePreview}
             </div>
           </div>
@@ -81,9 +91,9 @@ const ChatList: React.FC<ChatListProps> = ({
       cell: ({ row }) => {
         const isAi = row.getValue('ai') as boolean;
         return (
-          <Badge variant={isAi ? "outline" : "secondary"}>
+          <span className={`badge ${isAi ? "badge-outline" : "badge-secondary"}`}>
             {isAi ? 'ИИ' : 'Человек'}
-          </Badge>
+          </span>
         );
       }
     },
@@ -92,7 +102,7 @@ const ChatList: React.FC<ChatListProps> = ({
       header: 'Время',
       cell: ({ row }) => {
         const timestamp = row.getValue('last_message_at') as string;
-        return <span className="text-sm dark:text-zinc-300">{formatChatListDate(timestamp)}</span>;
+        return <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--foreground)' }}>{formatChatListDate(timestamp)}</span>;
       }
     }
   ];
@@ -109,61 +119,85 @@ const ChatList: React.FC<ChatListProps> = ({
   });
 
   return (
-    <div className="rounded-md border dark:border-zinc-800">
-      <Table>
-        <TableHeader>
+    <div className="rounded-md border" style={{ borderColor: 'var(--border)' }}>
+      <table className="table">
+        <thead>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="dark:bg-zinc-800/50">
+            <tr key={headerGroup.id} style={{ backgroundColor: 'var(--muted)' }}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="cursor-pointer dark:text-zinc-400" onClick={header.column.getToggleSortingHandler()}>
+                <th 
+                  key={header.id} 
+                  className="cursor-pointer" 
+                  style={{ color: 'var(--muted-foreground)' }}
+                  onClick={header.column.getToggleSortingHandler()}
+                >
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext()
                   )}
-                  <span className="ml-1">
+                  <span style={{ marginLeft: 'var(--spacing-1)' }}>
                     {{
                       asc: ' 🔼',
                       desc: ' 🔽',
                     }[header.column.getIsSorted() as string] ?? ''}
                   </span>
-                </TableHead>
+                </th>
               ))}
-            </TableRow>
+            </tr>
           ))}
-        </TableHeader>
-        <TableBody>
+        </thead>
+        <tbody>
           {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center dark:text-zinc-400">
+            <tr>
+              <td 
+                colSpan={columns.length} 
+                className="text-center" 
+                style={{ height: '6rem', color: 'var(--muted-foreground)' }}
+              >
                 Загрузка чатов...
-              </TableCell>
-            </TableRow>
+              </td>
+            </tr>
           ) : safeChats.length > 0 ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow 
+              <tr 
                 key={row.id} 
                 onClick={() => handleRowClick(row.original.id)}
-                className={`cursor-pointer dark:hover:bg-zinc-800/50 ${
-                  selectedChatId === row.original.id ? 'dark:bg-zinc-800 bg-accent' : ''
-                }`}
+                className="cursor-pointer transition"
+                style={{
+                  backgroundColor: selectedChatId === row.original.id ? 'var(--accent)' : 'transparent'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedChatId !== row.original.id) {
+                    e.currentTarget.style.backgroundColor = 'var(--muted)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedChatId !== row.original.id) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
                 data-state={selectedChatId === row.original.id ? 'selected' : undefined}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="dark:text-zinc-300">
+                  <td key={cell.id} style={{ color: 'var(--foreground)' }}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+                  </td>
                 ))}
-              </TableRow>
+              </tr>
             ))
           ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center dark:text-zinc-400">
+            <tr>
+              <td 
+                colSpan={columns.length} 
+                className="text-center" 
+                style={{ height: '6rem', color: 'var(--muted-foreground)' }}
+              >
                 Чаты не найдены.
-              </TableCell>
-            </TableRow>
+              </td>
+            </tr>
           )}
-        </TableBody>
-      </Table>
+        </tbody>
+      </table>
     </div>
   );
 };

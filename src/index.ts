@@ -11,11 +11,7 @@ export { default as MessageBubble } from './components/chat/MessageBubble';
 export { default as Pagination } from './components/chat/Pagination';
 
 // Export services
-export { default as ChatWebSocketService } from './api/websocketService';
 export { fetchChats, fetchChatById, updateChat, exportChatAsJson, exportChatAsText } from './api/chatService';
 
 // Export utilities
 export { formatMoscowTime, formatMoscowFullDate, formatChatListDate, formatDateRange } from './utils/dateUtils';
-
-// Export hooks
-export { default as useChatWebSocket } from './hooks/useChatWebSocket';
